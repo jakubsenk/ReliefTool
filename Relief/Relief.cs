@@ -11,73 +11,50 @@ namespace ReliefLib
 	public class Relief
 	{
 		private bool debug;
-		string[] fileContents;
-		private List<int[]> samples;
+		private List<DataUnit> data;
 		private double[] weights;
+		private Dictionary<string, int> stringValues;
 
-		public Relief(string file, bool debug = false)
+		public Relief(List<DataUnit> data, bool debug = false)
 		{
 			this.debug = debug;
-			ReliefInit(file);
+			this.data = data;
+			ReliefInit();
 		}
 
-		private void ReliefInit(string file)
+		private void ReliefInit()
 		{
-			fileContents = File.ReadAllLines(file);
-			fileContents = trimArray(fileContents);
+			stringValues = new Dictionary<string, int>();
+			for (int i = 0; i < data[0].Columns.Count; i++)
+			{
+				int currentStringValue = 10;
+				foreach (DataUnit item in data)
+				{
+					if (item.Columns[i].GetType() == typeof(string))
+					{
+						if (!stringValues.ContainsKey((string)item.Columns[i]))
+						{
+							stringValues.Add((string)item.Columns[i], currentStringValue);
+							currentStringValue += 10;
+						}
+					}
+				}
+			}
+
+			SetFeatureWeights();
 
 			if (debug)
 			{
-				Console.WriteLine("fileContents.length after trim == " + fileContents.Length);
-			}
-
-			string[] currentRow;
-			samples = new List<int[]>(fileContents.Length);
-			for (int i = 0; i < fileContents.Length; i++)
-			{
-				currentRow = fileContents[i].Split(',');
-				int[] row = new int[currentRow.Length];
-				for (int j = 0; j < currentRow.Length; j++)
-				{
-					row[j] = int.Parse(currentRow[j]);
-				}
-				samples.Add(row);
-			}
-
-			setFeatureWeights();
-
-			for (int i = 0; i < weights.Length; i++)
-			{
-				if (debug)
+				for (int i = 0; i < weights.Length; i++)
 				{
 					Console.WriteLine("W(" + (i + 1) + "): " + weights[i]);
 				}
 			}
 		}
 
-		private string[] trimArray(string[] _array)
+		private DataUnit GetSample(int sampleIndex)
 		{
-
-			int newLength = 0;
-			for (int i = _array.Length - 1; (_array[i] == null) && (i >= 0); i--)
-			{
-				newLength = i;
-			}
-			if (newLength != 0)
-			{
-				string[] newArray = new string[newLength];
-				Array.Copy(_array, 0, newArray, 0, newLength);
-				return newArray;
-			}
-			else
-			{
-				return _array;
-			}
-		}
-
-		private int[] getSampleFeatures(int sampleIndex)
-		{
-			if (sampleIndex >= samples.Count || sampleIndex < 0)
+			if (sampleIndex >= data.Count || sampleIndex < 0)
 			{
 				if (debug)
 				{
@@ -87,15 +64,13 @@ namespace ReliefLib
 			}
 			else
 			{
-				int[] featuresToReturn = new int[samples[sampleIndex].Length - 1];
-				Array.Copy(samples[sampleIndex], 0, featuresToReturn, 0, featuresToReturn.Length);
-				return featuresToReturn;
+				return data[sampleIndex];
 			}
 		}
 
-		private int getSampleFeature(int sampleIndex, int featureIndex)
+		private object GetSampleColumn(int sampleIndex, int featureIndex)
 		{
-			if (sampleIndex >= samples.Count || sampleIndex < 0)
+			if (sampleIndex >= data.Count || sampleIndex < 0)
 			{
 				if (debug)
 				{
@@ -105,13 +80,13 @@ namespace ReliefLib
 			}
 			else
 			{
-				return getSampleFeatures(sampleIndex)[featureIndex];
+				return GetSample(sampleIndex).Columns[featureIndex];
 			}
 		}
 
-		private int getSampleClass(int sampleIndex)
+		private object GetSampleClass(int sampleIndex)
 		{
-			if (sampleIndex >= samples.Count || sampleIndex < 0)
+			if (sampleIndex >= data.Count || sampleIndex < 0)
 			{
 				if (debug)
 				{
@@ -121,37 +96,31 @@ namespace ReliefLib
 			}
 			else
 			{
-				return samples[sampleIndex][samples[sampleIndex].Length - 1];
+				return data[sampleIndex].ResultClass;
 			}
 		}
 
-		private int nearestMiss(int sampleIndex, int featureIndex)
-		{
-			int shortestDistance = -1;
-			int currentDistance;
-			for (int i = 0; i < samples.Count; i++)
-			{
-				if (getSampleClass(sampleIndex) != getSampleClass(i))
-				{
-					currentDistance = getSampleFeature(sampleIndex, featureIndex) - getSampleFeature(i, featureIndex);
-					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2) || shortestDistance == -1)
-					{
-						shortestDistance = currentDistance;
-					}
-				}
-			}
-			return shortestDistance;
-		}
-
-		private double nearestHit(int sampleIndex, int featureIndex)
+		private double GetNearestMiss(int sampleIndex, int featureIndex)
 		{
 			double shortestDistance = -1;
 			double currentDistance;
-			for (int i = 0; i < samples.Count; i++)
+			for (int i = 0; i < data.Count; i++)
 			{
-				if (getSampleClass(sampleIndex) == getSampleClass(i) && sampleIndex != i)
+				if (!string.Equals(GetSampleClass(sampleIndex), GetSampleClass(i)))
 				{
-					currentDistance = getSampleFeature(sampleIndex, featureIndex) - getSampleFeature(i, featureIndex);
+					object feature1 = GetSampleColumn(sampleIndex, featureIndex);
+					object feature2 = GetSampleColumn(i, featureIndex);
+					if (feature1 == null || feature2 == null) continue;
+					if (!feature1.GetType().IsEquivalentTo(feature2.GetType())) continue;
+
+					if (feature1.GetType() == typeof(double))
+					{
+						currentDistance = (double)feature1 - (double)feature2;
+					}
+					else
+					{
+						currentDistance = stringValues[(string)feature1] - stringValues[(string)feature2];
+					}
 					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2) || shortestDistance == -1)
 					{
 						shortestDistance = currentDistance;
@@ -161,21 +130,49 @@ namespace ReliefLib
 			return shortestDistance;
 		}
 
-		private void setFeatureWeights()
+		private double GetNearestHit(int sampleIndex, int featureIndex)
 		{
-			weights = new double[getSampleFeatures(0).Length];
-			weights[0] = 0.0;
-			for (int i = 0; i < samples.Count; i++)
+			double shortestDistance = -1;
+			double currentDistance;
+			for (int i = 0; i < data.Count; i++)
+			{
+				if (string.Equals(GetSampleClass(sampleIndex), GetSampleClass(i)) && sampleIndex != i)
+				{
+					object feature1 = GetSampleColumn(sampleIndex, featureIndex);
+					object feature2 = GetSampleColumn(i, featureIndex);
+					if (feature1 == null || feature2 == null) continue;
+					if (!feature1.GetType().IsEquivalentTo(feature2.GetType())) continue;
+
+					if (feature1.GetType() == typeof(double))
+					{
+						currentDistance = (double)feature1 - (double)feature2;
+					}
+					else
+					{
+						currentDistance = stringValues[(string)feature1] - stringValues[(string)feature2];
+					}
+					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2) || shortestDistance == -1)
+					{
+						shortestDistance = currentDistance;
+					}
+				}
+			}
+			return shortestDistance;
+		}
+
+		private void SetFeatureWeights()
+		{
+			weights = new double[GetSample(0).Columns.Count];
+			for (int i = 0; i < data.Count; i++)
 			{
 				for (int j = 0; j < weights.Length; j++)
 				{
-
-					weights[j] = weights[j] - Math.Pow(nearestHit(i, j), 2) + Math.Pow(nearestMiss(i, j), 2);
+					weights[j] = weights[j] - Math.Pow(GetNearestHit(i, j), 2) + Math.Pow(GetNearestMiss(i, j), 2);
 				}
 			}
 			for (int i = 0; i < weights.Length; i++)
 			{
-				weights[i] = weights[i] / samples.Count;
+				weights[i] = weights[i] / data.Count;
 			}
 		}
 	}

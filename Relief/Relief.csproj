@@ -41,8 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataPreparator.cs" />
+    <Compile Include="DataPreparatorOptions.cs" />
     <Compile Include="Relief.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DataUnit.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

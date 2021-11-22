@@ -1,6 +1,7 @@
 ﻿using ReliefLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,13 @@ namespace ReliefTool
 	{
 		static void Main(string[] args)
 		{
-			Relief r = new Relief(@"D:\Git\ReliefTool\ReliefTool\iris2.csv", true);
+			DataPreparatorOptions options = new DataPreparatorOptions
+			{
+				SkipFirstLine = true,
+				ColumnSeparator = ';'
+			};
+			List<DataUnit> data = DataPreparator.PrepareData(File.ReadAllLines(@"D:\Git\ReliefTool\ReliefTool\weather2.csv"), options);
+			Relief r = new Relief(data, true);
 			Console.ReadKey();
 		}
 	}

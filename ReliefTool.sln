@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliefTool", "ReliefTool\Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Relief", "Relief\Relief.csproj", "{B7566DD6-BDD8-48B7-A64A-47AC1311DB58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliefWeb", "ReliefWeb\ReliefWeb.csproj", "{733FF92B-CF60-4F2D-977D-6533275AF52D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B7566DD6-BDD8-48B7-A64A-47AC1311DB58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7566DD6-BDD8-48B7-A64A-47AC1311DB58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7566DD6-BDD8-48B7-A64A-47AC1311DB58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{733FF92B-CF60-4F2D-977D-6533275AF52D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{733FF92B-CF60-4F2D-977D-6533275AF52D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{733FF92B-CF60-4F2D-977D-6533275AF52D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{733FF92B-CF60-4F2D-977D-6533275AF52D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

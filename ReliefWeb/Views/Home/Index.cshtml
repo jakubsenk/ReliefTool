@@ -1,0 +1,35 @@
+﻿@{
+	ViewBag.Title = "Home Page";
+}
+
+<br />
+
+@if (Model != null)
+{
+	<span style="color: red">@Model</span>
+}
+
+@using (Html.BeginForm("Relief", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+	<label for="file">Data file</label>
+	<input id="file" name="file" type="file" />
+	<br />
+	<input id="skip" name="skip" type="checkbox" />
+	<label for="skip">First line is column definitions</label>
+	<br />
+	<span>Result class is:</span>
+	<br />
+	<input type="radio" id="first-col" name="resultclass" value="0">
+	<label for="first-col">First column</label>
+	<br>
+	<input type="radio" id="last-col" name="resultclass" value="1" checked>
+	<label for="last-col">Last column</label>
+	<br>
+	<label for="separator">Column separator: </label>
+	<input type="text" id="separator" name="separator" value=",">
+	<br />
+	<input id="parallel" name="parallel" type="checkbox" />
+	<label for="parallel">Use parallelism</label>
+	<br />
+	<input type="submit" />
+}

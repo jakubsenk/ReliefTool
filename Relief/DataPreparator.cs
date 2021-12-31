@@ -21,15 +21,36 @@ namespace ReliefLib
 			for (int i = options.SkipFirstLine ? 1 : 0; i < content.Length; i++)
 			{
 				currentRow = content[i].Split(options.ColumnSeparator);
-				DataUnit row = new DataUnit(currentRow[currentRow.Length - 1]);
-				for (int j = 0; j < currentRow.Length - 1; j++)
+				DataUnit row = new DataUnit(currentRow[options.ResultClassIsFirstColumn ? 0 : currentRow.Length - 1]);
+				for (int j = options.ResultClassIsFirstColumn ? 1 : 0; j < currentRow.Length - (options.ResultClassIsFirstColumn ? 0 : 1); j++)
 				{
-					if (double.TryParse(currentRow[j], NumberStyles.Any, CultureInfo.InvariantCulture, out double d))
+					if (string.IsNullOrEmpty(currentRow[j]))
+						row.Columns.Add(null);
+					else if (double.TryParse(currentRow[j].Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double d))
 						row.Columns.Add(d);
 					else
-						row.Columns.Add(currentRow[j]);
+						throw new Exception("All values must be numeric.");
 				}
 				result.Add(row);
+			}
+
+			int columnCount = result[0].Columns.Count;
+			foreach (var item in result)
+			{
+				if (item.Columns.Count != columnCount)
+					throw new Exception("Unable to parse data file. All rows must have same column count.");
+			}
+
+			return result;
+		}
+
+		public static List<string> GetColumnDefinitions(string[] content, DataPreparatorOptions options)
+		{
+			List<string> result = new List<string>();
+			string[] firstRow = content[0].Split(options.ColumnSeparator);
+			for (int j = 0; j < firstRow.Length - 1; j++)
+			{
+				result.Add(firstRow[j]);
 			}
 
 			return result;

@@ -1,5 +1,5 @@
 ﻿@using ReliefWeb.Models
-@model ReliefResult
+@model List<ReliefResult>
 @{
 	ViewBag.Title = "Relief";
 }
@@ -10,45 +10,60 @@
 		padding: 3px 5px;
 	}
 </style>
-@if (Model != null)
+@if (Model != null && Model.Count > 0)
 {
-	<p>Calculation time: @Model.Duration</p>
-	<table border="1">
-		<thead>
-			<tr>
-				<th>Best Column</th>
-				<th>Score</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td>@Model.BestScore.Key</td>
-				<td>@Model.BestScore.Value</td>
-			</tr>
-		</tbody>
-	</table>
+	foreach (ReliefResult item in Model)
+	{
+		<span style="width: 300px; display: inline-block">
+			Calculation time: @item.Duration
+			<br />
+			Algorithm: @item.Name
+		</span>
+	}
 	<br />
-	<table border="1">
-		<thead>
-			<tr>
-				<th>Column</th>
-				<th>Score</th>
-			</tr>
-		</thead>
-		<tbody>
-			@for (int i = 0; i < Model.Scores.Count; i++)
-			{
+	foreach (ReliefResult item in Model)
+	{
+		<table border="1" style="display: inline-table; width: 300px">
+			<thead>
 				<tr>
-					<td>@Model.Scores[i].Key</td>
-					<td>@Model.Scores[i].Value</td>
+					<th>Best Column</th>
+					<th>Score</th>
 				</tr>
-			}
-			@if (Model.RemovedCount != null)
-			{
+			</thead>
+			<tbody>
 				<tr>
-					<td colspan="2">+@Model.RemovedCount.Value removed columns</td>
+					<td>@item.BestScore.Key</td>
+					<td>@item.BestScore.Value</td>
 				</tr>
-			}
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	}
+	<br />
+	<br />
+	foreach (ReliefResult item in Model)
+	{
+		<table border="1" style="display: inline-table; width: 300px">
+			<thead>
+				<tr>
+					<th>Column</th>
+					<th>Score</th>
+				</tr>
+			</thead>
+			<tbody>
+				@for (int i = 0; i < item.Scores.Count; i++)
+				{
+					<tr>
+						<td>@item.Scores[i].Key</td>
+						<td>@item.Scores[i].Value</td>
+					</tr>
+				}
+				@if (item.RemovedCount != null)
+				{
+					<tr>
+						<td colspan="2">+@item.RemovedCount.Value removed columns</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
 }

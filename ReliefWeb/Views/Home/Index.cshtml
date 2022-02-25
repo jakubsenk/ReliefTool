@@ -14,7 +14,7 @@
 	<label for="file">Data file</label>
 	<input id="file" name="file" type="file" />
 	<br />
-	<input id="skip" name="skip" type="checkbox" />
+	<input id="skip" name="skip" type="checkbox" checked />
 	<label for="skip">First line is column definitions</label>
 	<br />
 	<span>Result class is:</span>
@@ -28,7 +28,13 @@
 	<label for="separator">Column separator: </label>
 	<input type="text" id="separator" name="separator" value=",">
 	<br />
-	<input id="parallel" name="parallel" type="checkbox" />
+	<input id="normalize" name="normalize" type="checkbox" checked />
+	<label for="normalize">Normalize values</label>
+	<br />
+	<label for="k">K (for ReliefF)</label>
+	<input id="k" name="k" type="number" value="10" />
+	<br />
+	<input id="parallel" name="parallel" type="checkbox" checked />
 	<label for="parallel">Use parallelism</label>
 	<br />
 	<input type="submit" />

@@ -11,5 +11,6 @@ namespace ReliefWeb.Models
 		public KeyValuePair<string, double> BestScore { get; set; }
 		public TimeSpan Duration { get; set; }
 		public int? RemovedCount { get; set; }
+		public string Name { get; set; }
 	}
 }

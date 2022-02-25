@@ -43,6 +43,11 @@
   <ItemGroup>
     <Compile Include="DataPreparator.cs" />
     <Compile Include="DataPreparatorOptions.cs" />
+    <Compile Include="IReliefAlgorithm.cs" />
+    <Compile Include="ReliefConsistent.cs" />
+    <Compile Include="ReliefFConsistent.cs" />
+    <Compile Include="ReliefJava.cs" />
+    <Compile Include="ReliefF.cs" />
     <Compile Include="Relief.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataUnit.cs" />

@@ -1,147 +1,129 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// https://github.com/ansballard/Relief-Algorithms/blob/master/Relief.java
 namespace ReliefLib
 {
-	public class Relief
+	// https://link.springer.com/content/pdf/10.1023/A:1025667309714.pdf
+	public class Relief : IReliefAlgorithm
 	{
-		private bool parallel;
 		private List<DataUnit> data;
+		private Stopwatch sw = new Stopwatch();
 
 		public List<double> Scores { get; private set; }
+		public TimeSpan Elapsed => sw.Elapsed;
 
-		public Relief(List<DataUnit> data, bool parallel = false)
+		private Dictionary<int, double> maxes = new Dictionary<int, double>();
+		private Dictionary<int, double> mins = new Dictionary<int, double>();
+
+		public void ProccessData(List<DataUnit> data)
 		{
-			this.parallel = parallel;
+			sw.Start();
 			this.data = data;
-			ReliefInit();
-		}
-
-		private void ReliefInit()
-		{
+			for (int i = 0; i < data[0].Columns.Count; i++)
+			{
+				maxes.Add(i, data.Max(x => x.Columns[i]));
+				mins.Add(i, data.Min(x => x.Columns[i]));
+			}
 			SetFeatureWeights();
+			sw.Stop();
 		}
 
-		private DataUnit GetSample(int sampleIndex)
+		private DataUnit GetNearestMiss(int sampleIndex)
 		{
-			if (sampleIndex >= data.Count || sampleIndex < 0)
-			{
-				return null;
-			}
-			else
-			{
-				return data[sampleIndex];
-			}
-		}
-
-		private double? GetSampleColumn(int sampleIndex, int featureIndex)
-		{
-			if (sampleIndex >= data.Count || sampleIndex < 0)
-			{
-				throw new IndexOutOfRangeException();
-			}
-			else
-			{
-				return GetSample(sampleIndex).Columns[featureIndex];
-			}
-		}
-
-		private object GetSampleClass(int sampleIndex)
-		{
-			if (sampleIndex >= data.Count || sampleIndex < 0)
-			{
-				throw new IndexOutOfRangeException();
-			}
-			else
-			{
-				return data[sampleIndex].ResultClass;
-			}
-		}
-
-		private double GetNearestMiss(int sampleIndex, int featureIndex)
-		{
-			double shortestDistance = -1;
+			double shortestDistance = int.MaxValue;
 			double currentDistance;
+			int index = -1;
 			for (int i = 0; i < data.Count; i++)
 			{
-				if (!string.Equals(GetSampleClass(sampleIndex), GetSampleClass(i)))
+				if (data[i].ResultClass != data[sampleIndex].ResultClass)
 				{
-					double? feature1 = GetSampleColumn(sampleIndex, featureIndex);
-					double? feature2 = GetSampleColumn(i, featureIndex);
-					if (feature1 == null || feature2 == null) continue;
+					currentDistance = 0;
+					for (int j = 0; j < data[sampleIndex].Columns.Count; j++)
+					{
+						double feature1 = data[sampleIndex].Columns[j];
+						double feature2 = data[i].Columns[j];
 
-					currentDistance = (double)feature1 - (double)feature2;
-
-					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2) || shortestDistance == -1)
+						currentDistance += feature1 - feature2;
+					}
+					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2))
 					{
 						shortestDistance = currentDistance;
+						index = i;
 					}
 				}
 			}
-			return shortestDistance;
+
+			return data[index];
 		}
 
-		private double GetNearestHit(int sampleIndex, int featureIndex)
+		private DataUnit GetNearestHit(int sampleIndex)
 		{
-			double shortestDistance = -1;
-			double currentDistance;
+			double shortestDistance = int.MaxValue;
+			double currentDistance = 0;
+			int index = -1;
 			for (int i = 0; i < data.Count; i++)
 			{
-				if (string.Equals(GetSampleClass(sampleIndex), GetSampleClass(i)) && sampleIndex != i)
+				if (data[sampleIndex].ResultClass == data[i].ResultClass && sampleIndex != i)
 				{
-					double? feature1 = GetSampleColumn(sampleIndex, featureIndex);
-					double? feature2 = GetSampleColumn(i, featureIndex);
-					if (feature1 == null || feature2 == null) continue;
+					for (int j = 0; j < data[i].Columns.Count; j++)
+					{
+						double feature1 = data[sampleIndex].Columns[j];
+						double feature2 = data[i].Columns[j];
 
-					currentDistance = (double)feature1 - (double)feature2;
-
-					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2) || shortestDistance == -1)
+						currentDistance += feature1 - feature2;
+					}
+					if (Math.Pow(currentDistance, 2) < Math.Pow(shortestDistance, 2))
 					{
 						shortestDistance = currentDistance;
+						index = i;
 					}
 				}
 			}
-			return shortestDistance;
+			return data[index];
+		}
+
+		protected virtual int GetProcessedIndex(Random r, int i)
+		{
+			return r.Next(data.Count);
 		}
 
 		private void SetFeatureWeights()
 		{
-			int featureCount = GetSample(0).Columns.Count;
-			Scores = new List<double>(GetSample(0).Columns.Count);
+			int featureCount = data[0].Columns.Count;
+			Scores = new List<double>(data[0].Columns.Count);
 			for (int i = 0; i < featureCount; i++)
 			{
 				Scores.Add(0);
 			}
-			ParallelOptions ops = new ParallelOptions()
-			{
-				MaxDegreeOfParallelism = 4
-			};
+			Random r = new Random();
 			for (int i = 0; i < data.Count; i++)
 			{
-				if (parallel)
+				int index = GetProcessedIndex(r, i);
+				DataUnit ri = data[index];
+				DataUnit hit = GetNearestHit(index);
+				DataUnit miss = GetNearestMiss(index);
+
+				for (int j = 0; j < Scores.Count; j++)
 				{
-					Parallel.For(0, featureCount, ops, j =>
-						{
-							Scores[j] = Scores[j] - Math.Pow(GetNearestHit(i, j), 2) + Math.Pow(GetNearestMiss(i, j), 2);
-						});
-				}
-				else
-				{
-					for (int j = 0; j < featureCount; j++)
-					{
-						Scores[j] = Scores[j] - Math.Pow(GetNearestHit(i, j), 2) + Math.Pow(GetNearestMiss(i, j), 2);
-					}
+					double hitDiff = Diff(j, ri, hit);
+					double missDiff = Diff(j, ri, miss);
+					Scores[j] += -hitDiff + missDiff;
 				}
 			}
 			for (int i = 0; i < Scores.Count; i++)
 			{
 				Scores[i] = Scores[i] / data.Count;
 			}
+		}
+
+		private double Diff(int featureIndex, DataUnit a, DataUnit b)
+		{
+			return Math.Abs(a.Columns[featureIndex] - b.Columns[featureIndex]) / maxes[featureIndex] - mins[featureIndex];
 		}
 	}
 }

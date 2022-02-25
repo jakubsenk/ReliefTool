@@ -11,5 +11,6 @@ namespace ReliefLib
 		public bool SkipFirstLine { get; set; } = false;
 		public char ColumnSeparator { get; set; } = ',';
 		public bool ResultClassIsFirstColumn { get; set; } = false;
+		public bool Normalize { get; set; } = false;
 	}
 }

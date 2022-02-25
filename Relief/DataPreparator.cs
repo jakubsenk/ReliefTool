@@ -25,7 +25,7 @@ namespace ReliefLib
 				for (int j = options.ResultClassIsFirstColumn ? 1 : 0; j < currentRow.Length - (options.ResultClassIsFirstColumn ? 0 : 1); j++)
 				{
 					if (string.IsNullOrEmpty(currentRow[j]))
-						row.Columns.Add(null);
+						throw new Exception("All values must be numeric.");
 					else if (double.TryParse(currentRow[j].Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double d))
 						row.Columns.Add(d);
 					else
@@ -39,6 +39,31 @@ namespace ReliefLib
 			{
 				if (item.Columns.Count != columnCount)
 					throw new Exception("Unable to parse data file. All rows must have same column count.");
+			}
+
+			if (options.Normalize)
+			{
+				for (int i = 0; i < columnCount; i++)
+				{
+					double max = result.Max(x => x.Columns[i]);
+					double min = result.Min(x => x.Columns[i]);
+
+					double range = max - min;
+					if (range > 0)
+					{
+						foreach (DataUnit row in result)
+						{
+							row.Columns[i] = (row.Columns[i] - min) / range;
+						}
+					}
+					else if (max > 1 || max < 0)
+					{
+						foreach (DataUnit row in result)
+						{
+							row.Columns[i] = max;
+						}
+					}
+				}
 			}
 
 			return result;

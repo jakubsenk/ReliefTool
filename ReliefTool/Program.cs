@@ -1,6 +1,7 @@
 ﻿using ReliefLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,11 +15,20 @@ namespace ReliefTool
 		{
 			DataPreparatorOptions options = new DataPreparatorOptions
 			{
-				SkipFirstLine = true,
-				ColumnSeparator = ';'
+				ResultClassIsFirstColumn = true
 			};
-			List<DataUnit> data = DataPreparator.PrepareData(File.ReadAllLines(@"D:\Git\ReliefTool\ReliefTool\weather2.csv"), options);
-			Relief r = new Relief(data, true);
+			List<DataUnit> data = DataPreparator.PrepareData(File.ReadAllLines(@"D:\Git\ReliefTool\Datasets\thrombin.data"), options);
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			new ReliefF(3).ProccessData(data);
+			Console.WriteLine("Calculation time ReliefF: " + sw.Elapsed);
+
+			sw.Restart();
+			new Relief().ProccessData(data);
+			Console.WriteLine("Calculation time Relief: " + sw.Elapsed);
+
 			Console.ReadKey();
 		}
 	}

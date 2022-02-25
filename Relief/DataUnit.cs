@@ -8,7 +8,7 @@ namespace ReliefLib
 {
 	public class DataUnit
 	{
-		public List<double?> Columns { get; set; } = new List<double?>();
+		public List<double> Columns { get; set; } = new List<double>();
 		public string ResultClass { get; set; }
 
 		public DataUnit(string resultClass = null)

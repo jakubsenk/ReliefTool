@@ -64,12 +64,13 @@ namespace ReliefLib
 		private DataUnit GetNearestHit(int sampleIndex)
 		{
 			double shortestDistance = int.MaxValue;
-			double currentDistance = 0;
+			double currentDistance;
 			int index = -1;
 			for (int i = 0; i < data.Count; i++)
 			{
 				if (data[sampleIndex].ResultClass == data[i].ResultClass && sampleIndex != i)
 				{
+					currentDistance = 0;
 					for (int j = 0; j < data[i].Columns.Count; j++)
 					{
 						double feature1 = data[sampleIndex].Columns[j];

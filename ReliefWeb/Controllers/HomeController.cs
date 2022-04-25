@@ -29,6 +29,7 @@ namespace ReliefWeb.Controllers
 			string separator = Request.Form.Get("separator");
 			string parallel = Request.Form.Get("parallel");
 			string sk = Request.Form.Get("k");
+			string sort = Request.Form.Get("sort");
 
 
 			if (file == null)
@@ -107,11 +108,14 @@ namespace ReliefWeb.Controllers
 					List<ReliefResult> results = new List<ReliefResult>();
 					foreach (IReliefAlgorithm relief in reliefs)
 					{
-						results.Add(ParseResult(relief, keys));
+						results.Add(ParseResult(relief, keys, sort != null));
 					}
 
 					data.Clear();
-					return View(results);
+					if (sort != null)
+						return View("ReliefSorted", results);
+					else
+						return View(results);
 				}
 			}
 			catch (Exception ex)
@@ -124,7 +128,7 @@ namespace ReliefWeb.Controllers
 			}
 		}
 
-		private ReliefResult ParseResult(IReliefAlgorithm relief, List<string> keys)
+		private ReliefResult ParseResult(IReliefAlgorithm relief, List<string> keys, bool sort)
 		{
 			List<KeyValuePair<string, double>> resultList = new List<KeyValuePair<string, double>>();
 			for (int i = 0; i < relief.Scores.Count; i++)
@@ -142,7 +146,8 @@ namespace ReliefWeb.Controllers
 			double max = resultList.Max(x => x.Value);
 			result.BestScore = resultList.Where(x => x.Value == max).First();
 
-			result.Scores = result.Scores.OrderByDescending(x => x.Value).ToList();
+			if (sort)
+				result.Scores = result.Scores.OrderByDescending(x => x.Value).ToList();
 			if (result.Scores.Count > 1000)
 			{
 				result.RemovedCount = result.Scores.Count - 1000;

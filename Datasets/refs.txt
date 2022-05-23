@@ -1,0 +1,5 @@
+https://www.kaggle.com/datasets/arshid/iris-flower-dataset
+https://www.kaggle.com/datasets/yasserh/wine-quality-dataset
+https://www.kaggle.com/datasets/muratkokludataset/pumpkin-seeds-dataset
+https://www.kaggle.com/datasets/muratkokludataset/date-fruit-datasets
+https://pages.cs.wisc.edu/~dpage/kddcup2001/

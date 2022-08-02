@@ -41,8 +41,9 @@ namespace ReliefLib
 			}
 			for (int i = 0; i < data[0].Columns.Count; i++)
 			{
-				maxes.Add(i, data.Max(x => x.Columns[i]));
-				mins.Add(i, data.Min(x => x.Columns[i]));
+				if (data[0].Columns[i].IsString) continue;
+				maxes.Add(i, data.Max(x => x.Columns[i].NumericValue));
+				mins.Add(i, data.Min(x => x.Columns[i].NumericValue));
 			}
 			SetFeatureWeights();
 			sw.Stop();
@@ -60,8 +61,8 @@ namespace ReliefLib
 					currentDistance = 0;
 					for (int j = 0; j < data[index].Columns.Count; j++)
 					{
-						double feature1 = data[index].Columns[j];
-						double feature2 = data[i].Columns[j];
+						double feature1 = data[index].Columns[j].NumericValue;
+						double feature2 = data[i].Columns[j].NumericValue;
 
 						currentDistance += feature1 - feature2;
 					}
@@ -94,8 +95,8 @@ namespace ReliefLib
 					currentDistance = 0;
 					for (int j = 0; j < data[index].Columns.Count; j++)
 					{
-						double feature1 = data[index].Columns[j];
-						double feature2 = data[i].Columns[j];
+						double feature1 = data[index].Columns[j].NumericValue;
+						double feature2 = data[i].Columns[j].NumericValue;
 
 						currentDistance += feature1 - feature2;
 					}
@@ -162,7 +163,9 @@ namespace ReliefLib
 
 		private double Diff(int featureIndex, DataUnit a, DataUnit b)
 		{
-			return Math.Abs(a.Columns[featureIndex] - b.Columns[featureIndex]) / maxes[featureIndex] - mins[featureIndex];
+			if (!a.Columns[featureIndex].IsString && !b.Columns[featureIndex].IsString)
+				return Math.Abs(a.Columns[featureIndex].NumericValue - b.Columns[featureIndex].NumericValue) / maxes[featureIndex] - mins[featureIndex];
+			else return a.Columns[featureIndex].StringValue == b.Columns[featureIndex].StringValue ? 0 : 1;
 		}
 	}
 }

@@ -33,8 +33,8 @@ namespace ReliefLib
 			{
 				if (data[sampleIndex].ResultClass != data[i].ResultClass)
 				{
-					double feature1 = data[sampleIndex].Columns[featureIndex];
-					double feature2 = data[i].Columns[featureIndex];
+					double feature1 = data[sampleIndex].Columns[featureIndex].NumericValue;
+					double feature2 = data[i].Columns[featureIndex].NumericValue;
 
 					currentDistance = feature1 - feature2;
 
@@ -47,7 +47,7 @@ namespace ReliefLib
 			return shortestDistance;
 		}
 
-		private double GetNearestHit(int sampleIndex, int featureIndex)
+		private double? GetNearestHit(int sampleIndex, int featureIndex)
 		{
 			double shortestDistance = int.MaxValue;
 			double currentDistance;
@@ -55,8 +55,8 @@ namespace ReliefLib
 			{
 				if (data[sampleIndex].ResultClass == data[i].ResultClass && sampleIndex != i)
 				{
-					double feature1 = data[sampleIndex].Columns[featureIndex];
-					double feature2 = data[i].Columns[featureIndex];
+					double feature1 = data[sampleIndex].Columns[featureIndex].NumericValue;
+					double feature2 = data[i].Columns[featureIndex].NumericValue;
 
 					currentDistance = feature1 - feature2;
 
@@ -66,7 +66,7 @@ namespace ReliefLib
 					}
 				}
 			}
-			return shortestDistance;
+			return shortestDistance == int.MaxValue ? null : (double?)shortestDistance;
 		}
 
 		private void SetFeatureWeights()
@@ -81,7 +81,9 @@ namespace ReliefLib
 			{
 				for (int j = 0; j < featureCount; j++)
 				{
-					Scores[j] = Scores[j] - Math.Pow(GetNearestHit(i, j), 2) + Math.Pow(GetNearestMiss(i, j), 2);
+					double? hit = GetNearestHit(i, j);
+					if (hit == null) continue;
+					Scores[j] = Scores[j] - Math.Pow(hit.Value, 2) + Math.Pow(GetNearestMiss(i, j), 2);
 				}
 			}
 			for (int i = 0; i < Scores.Count; i++)

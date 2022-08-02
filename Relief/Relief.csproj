@@ -41,9 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColumnValue.cs" />
     <Compile Include="DataPreparator.cs" />
     <Compile Include="DataPreparatorOptions.cs" />
     <Compile Include="IReliefAlgorithm.cs" />
+    <Compile Include="PreparatorResult.cs" />
     <Compile Include="ReliefConsistent.cs" />
     <Compile Include="ReliefFConsistent.cs" />
     <Compile Include="ReliefJava.cs" />

@@ -67,7 +67,8 @@ namespace ReliefWeb.Controllers
 						Normalize = sNormalize != null
 					};
 
-					List<DataUnit> data = DataPreparator.PrepareData(lines.ToArray(), options);
+					PreparatorResult result = DataPreparator.PrepareData(lines.ToArray(), options);
+					List<DataUnit> data = result.Data;
 
 					List<IReliefAlgorithm> reliefs = new List<IReliefAlgorithm>();
 					reliefs.Add(new ReliefJava());
@@ -91,24 +92,10 @@ namespace ReliefWeb.Controllers
 						}
 					}
 
-					List<string> keys;
-					if (options.SkipFirstLine)
-					{
-						keys = DataPreparator.GetColumnDefinitions(lines.ToArray(), options);
-					}
-					else
-					{
-						keys = new List<string>();
-						for (int i = 0; i < data[0].Columns.Count; i++)
-						{
-							keys.Add(i.ToString());
-						}
-					}
-
 					List<ReliefResult> results = new List<ReliefResult>();
 					foreach (IReliefAlgorithm relief in reliefs)
 					{
-						results.Add(ParseResult(relief, keys, sort != null));
+						results.Add(ParseResult(relief, result.Keys, sort != null));
 					}
 
 					data.Clear();

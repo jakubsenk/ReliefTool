@@ -17,7 +17,9 @@ namespace ReliefTool
 			{
 				ResultClassIsFirstColumn = true
 			};
-			List<DataUnit> data = DataPreparator.PrepareData(File.ReadAllLines(@"D:\Git\ReliefTool\Datasets\thrombin.data"), options);
+
+			PreparatorResult result = DataPreparator.PrepareData(File.ReadAllLines(@"D:\Git\ReliefTool\Datasets\thrombin.data"), options);
+			List<DataUnit> data = result.Data;
 
 			Stopwatch sw = new Stopwatch();
 			sw.Start();

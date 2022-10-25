@@ -68,6 +68,45 @@
 					<td colspan="2">+@Model[0].RemovedCount.Value removed columns</td>
 				</tr>
 			}
+
+
+			@if (Model[0].Clusters != null)
+			{
+				<tr>
+					<td></td>
+					@for (int i = 0; i < Model.Count; i++)
+					{
+						var xAxis = new List<int>();
+						for (int j = 0; j < Model[i].Clusters.Rows.Count; j++)
+						{
+							xAxis.Add(j + 1);
+						}
+						var chart = new Chart(width: 200, height: 200, theme: ChartTheme.Vanilla)
+					 .AddTitle("Sillhoutte index")
+					 .AddSeries("Default",
+								xValue: xAxis,
+								yValues: Model[i].Sillhoutte)
+						.ToWebImage();
+						<td>
+							<img src="@string.Format("data:image/jpeg;base64,{0}",Convert.ToBase64String(chart.GetBytes()))" />
+						</td>
+
+					}
+				</tr>
+				for (int j = 0; j < Model[0].Graphs.Count; j++)
+				{
+					<tr>
+						<td></td>
+
+						@for (int i = 0; i < Model.Count; i++)
+						{
+							<td>
+								@Html.Partial("Chart", Model[i].Graphs[j], new ViewDataDictionary() { { "Counter", i }, { "Counter2", j } })
+							</td>
+						}
+					</tr>
+				}
+			}
 		</tbody>
 	</table>
 }

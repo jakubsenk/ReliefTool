@@ -6,3 +6,4 @@ https://pages.cs.wisc.edu/~dpage/kddcup2001/
 https://www.kaggle.com/datasets/paradisejoy/top-hits-spotify-from-20002019
 https://www.kaggle.com/datasets/zzettrkalpakbal/full-filled-brain-stroke-dataset
 https://www.kaggle.com/datasets/gabrielsantello/cars-purchase-decision-dataset
+https://www.kaggle.com/datasets/iabhishekofficial/mobile-price-classification

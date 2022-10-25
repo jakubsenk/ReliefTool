@@ -1,0 +1,60 @@
+﻿@using ReliefWeb.Models
+@model GraphModel
+
+@{
+	string id = "chart_" + ViewData["counter"] + "_" + ViewData["counter2"];
+}
+<canvas id="@id" style="width: 200px; height: 200px"></canvas>
+
+<script>
+	window.addEventListener("load", function () {
+		const ctx = document.getElementById('@id');
+		const myChart = new Chart(ctx, {
+			type: 'scatter',
+			data: {
+				datasets: [
+					@for (int j = 0; j < Model.ClusterPairsX.Count; j++)
+					{
+						@("{\n")
+						@("label: ")@Html.Raw("'")@("Cluster " + (j + 1))@Html.Raw("',")
+						@Html.Raw("backgroundColor: 'rgb(" + Model.ClusterColors[j].R + ", " + Model.ClusterColors[j].G + ", " + Model.ClusterColors[j].B)@Html.Raw(")',");
+						@("data: [")
+							for (int i = 0; i < Model.ClusterPairsX[j].Count; i++)
+							{
+								@("{\n")
+								@("x: " + Model.ClusterPairsX[j][i].ToString(System.Globalization.CultureInfo.InvariantCulture) + ",")
+								@("y: " + Model.ClusterPairsY[j][i].ToString(System.Globalization.CultureInfo.InvariantCulture))
+								@("\n}" + (i == Model.ClusterPairsX[j].Count - 1 ? "\n" : ",\n"))
+							}
+							@("]\n")
+						@("}" + (j == Model.ClusterPairsX.Count - 1 ? "\n" : ",\n"))
+					}
+				]
+			},
+			options: {
+				scales: {
+					x: {
+						title: {
+							display: true,
+							text: "@Model.XAxis",
+							padding: 0
+						}
+					},
+					y: {
+						title: {
+							display: true,
+							text: "@Model.YAxis",
+							padding: 0
+						}
+					}
+				},
+				plugins: {
+					legend: {
+						display: false
+					}
+				}
+			}
+		});
+	});
+</script>
+

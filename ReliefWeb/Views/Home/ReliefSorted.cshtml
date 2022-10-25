@@ -21,8 +21,11 @@
 		</span>
 	}
 	<br />
+
+	int ind = -1;
 	foreach (ReliefResult item in Model)
 	{
+		ind++;
 		<table border="1" style="display: inline-table; min-width: 250px">
 			<thead>
 				<tr>
@@ -54,6 +57,35 @@
 					<tr>
 						<td colspan="2">+@item.RemovedCount.Value removed columns</td>
 					</tr>
+				}
+				@if (item.Clusters != null)
+				{
+					<tr>
+						@{
+							var xAxis = new List<int>();
+							for (int j = 0; j < item.Clusters.Rows.Count; j++)
+							{
+								xAxis.Add(j + 1);
+							}
+							var chart = new Chart(width: 200, height: 200, theme: ChartTheme.Vanilla)
+						 .AddTitle("Sillhoutte index")
+						 .AddSeries("Default",
+									xValue: xAxis,
+									yValues: item.Sillhoutte)
+							.ToWebImage();
+							<td colspan="2">
+								<img src="@string.Format("data:image/jpeg;base64,{0}",Convert.ToBase64String(chart.GetBytes()))" />
+							</td>
+						}
+					</tr>
+					for (int j = 0; j < item.Graphs.Count; j++)
+					{
+						<tr>
+							<td colspan="2">
+								@Html.Partial("Chart", item.Graphs[j], new ViewDataDictionary() { { "Counter", ind }, { "Counter2", j } })
+							</td>
+						</tr>
+					}
 				}
 			</tbody>
 		</table>

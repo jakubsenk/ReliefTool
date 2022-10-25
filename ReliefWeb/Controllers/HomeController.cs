@@ -3,11 +3,13 @@ using ReliefWeb.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace ReliefWeb.Controllers
@@ -30,7 +32,9 @@ namespace ReliefWeb.Controllers
 			string parallel = Request.Form.Get("parallel");
 			string sk = Request.Form.Get("k");
 			string sort = Request.Form.Get("sort");
-
+			string cluster = Request.Form.Get("cluster");
+			string clusterCount = Request.Form.Get("clusterCount");
+			string clusterProperties = Request.Form.Get("clusterProps");
 
 			if (file == null)
 			{
@@ -95,7 +99,46 @@ namespace ReliefWeb.Controllers
 					List<ReliefResult> results = new List<ReliefResult>();
 					foreach (IReliefAlgorithm relief in reliefs)
 					{
-						results.Add(ParseResult(relief, result.Keys, sort != null));
+						results.Add(ParseResult(relief, result.Keys));
+					}
+
+					if (!string.IsNullOrEmpty(cluster))
+					{
+						Random r = new Random();
+						foreach (ReliefResult item in results)
+						{
+							item.Graphs = new List<GraphModel>();
+
+							List<KeyValuePair<string, double>> clusterTemp = item.SortedScores.Take(int.Parse(clusterProperties)).ToList();
+							List<int> clusterProps = new List<int>();
+							foreach (KeyValuePair<string, double> cl in clusterTemp)
+							{
+								clusterProps.Add(result.Keys.IndexOf(cl.Key));
+							}
+							IClusterer c = new AlgLibClusterer();
+							item.Clusters = c.GetClusters(data, int.Parse(clusterCount), clusterProps);
+
+							item.Sillhoutte = SillhouteIndex.GetIndex(item.Clusters);
+
+							List<Tuple<int, int>> pairs = GetClusterPropertiesPairs(result, item, int.Parse(clusterProperties));
+							for (int j = 0; j < pairs.Count; j++)
+							{
+								item.Graphs.Add(new GraphModel());
+								item.Graphs[j].XAxis = result.Keys[pairs[j].Item1];
+								item.Graphs[j].YAxis = result.Keys[pairs[j].Item2];
+								for (int i = 0; i < item.Clusters.Rows.Count; i++)
+								{
+									item.Graphs[j].ClusterPairsX.Add(new List<double>());
+									item.Graphs[j].ClusterPairsY.Add(new List<double>());
+									item.Graphs[j].ClusterColors.Add(Color.FromArgb(r.Next(256), r.Next(256), r.Next(256)));
+									foreach (DataUnit dataUnit in item.Clusters.Rows[i].ClusterData)
+									{
+										item.Graphs[j].ClusterPairsX[i].Add(dataUnit.Columns[pairs[j].Item1].NumericValue);
+										item.Graphs[j].ClusterPairsY[i].Add(dataUnit.Columns[pairs[j].Item2].NumericValue);
+									}
+								}
+							}
+						}
 					}
 
 					data.Clear();
@@ -115,7 +158,7 @@ namespace ReliefWeb.Controllers
 			}
 		}
 
-		private ReliefResult ParseResult(IReliefAlgorithm relief, List<string> keys, bool sort)
+		private ReliefResult ParseResult(IReliefAlgorithm relief, List<string> keys)
 		{
 			List<KeyValuePair<string, double>> resultList = new List<KeyValuePair<string, double>>();
 			for (int i = 0; i < relief.Scores.Count; i++)
@@ -133,8 +176,7 @@ namespace ReliefWeb.Controllers
 			double max = resultList.Max(x => x.Value);
 			result.BestScore = resultList.Where(x => x.Value == max).First();
 
-			if (sort)
-				result.Scores = result.Scores.OrderByDescending(x => x.Value).ToList();
+			result.SortedScores = result.Scores.OrderByDescending(x => x.Value).ToList();
 			if (result.Scores.Count > 1000)
 			{
 				result.RemovedCount = result.Scores.Count - 1000;
@@ -142,6 +184,29 @@ namespace ReliefWeb.Controllers
 			}
 
 			return result;
+		}
+
+		private List<Tuple<int, int>> GetClusterPropertiesPairs(PreparatorResult result, ReliefResult item, int maxScores)
+		{
+			List<KeyValuePair<string, double>> clusterTemp = item.SortedScores.Take(maxScores).ToList();
+			List<int> clusterProps = new List<int>();
+			foreach (KeyValuePair<string, double> cl in clusterTemp)
+			{
+				clusterProps.Add(result.Keys.IndexOf(cl.Key));
+			}
+
+			HashSet<Tuple<int, int>> res = new HashSet<Tuple<int, int>>();
+			foreach (int outer in clusterProps)
+			{
+				foreach (int inner in clusterProps)
+				{
+					if (inner == outer) continue;
+					if (!res.Contains(new Tuple<int, int>(outer, inner)) && !res.Contains(new Tuple<int, int>(inner, outer)))
+						res.Add(new Tuple<int, int>(outer, inner));
+				}
+			}
+
+			return res.ToList();
 		}
 	}
 }

@@ -16,7 +16,10 @@ namespace ReliefWeb.Models
 		public int? RemovedCount { get; set; }
 		public string Name { get; set; }
 		public ClusterTable Clusters { get; set; }
+		public ClusterTable ClustersAll { get; set; }
 		public List<double> Sillhoutte { get; set; }
+		public List<double> SillhoutteAll { get; set; }
 		public List<GraphModel> Graphs { get; set; }
+		public List<GraphModel> GraphsAll { get; set; }
 	}
 }

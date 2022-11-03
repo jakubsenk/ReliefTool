@@ -2,7 +2,7 @@
 @model GraphModel
 
 @{
-	string id = "chart_" + ViewData["counter"] + "_" + ViewData["counter2"];
+	string id = ViewData["id"] as string;
 }
 <canvas id="@id" style="width: 200px; height: 200px"></canvas>
 

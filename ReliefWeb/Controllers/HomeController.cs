@@ -108,6 +108,7 @@ namespace ReliefWeb.Controllers
 						foreach (ReliefResult item in results)
 						{
 							item.Graphs = new List<GraphModel>();
+							item.GraphsAll = new List<GraphModel>();
 
 							List<KeyValuePair<string, double>> clusterTemp = item.SortedScores.Take(int.Parse(clusterProperties)).ToList();
 							List<int> clusterProps = new List<int>();
@@ -118,25 +119,53 @@ namespace ReliefWeb.Controllers
 							IClusterer c = new AlgLibClusterer();
 							item.Clusters = c.GetClusters(data, int.Parse(clusterCount), clusterProps);
 
+							clusterProps.Clear();
+							for (int i = 0; i < result.Keys.Count; i++)
+							{
+								clusterProps.Add(i);
+							}
+
+							item.ClustersAll = c.GetClusters(data, int.Parse(clusterCount), clusterProps);
+
 							item.Sillhoutte = SillhouteIndex.GetIndex(item.Clusters);
+							item.SillhoutteAll = SillhouteIndex.GetIndex(item.ClustersAll);
 
 							List<Tuple<int, int>> pairs = GetClusterPropertiesPairs(result, item, int.Parse(clusterProperties));
 							for (int j = 0; j < pairs.Count; j++)
 							{
-								item.Graphs.Add(new GraphModel());
-								item.Graphs[j].XAxis = result.Keys[pairs[j].Item1];
-								item.Graphs[j].YAxis = result.Keys[pairs[j].Item2];
+								GraphModel graph = new GraphModel();
+								GraphModel graphOrig = new GraphModel();
+
+								graph.XAxis = result.Keys[pairs[j].Item1];
+								graph.YAxis = result.Keys[pairs[j].Item2];
+
+								graphOrig.XAxis = result.Keys[pairs[j].Item1];
+								graphOrig.YAxis = result.Keys[pairs[j].Item2];
+
 								for (int i = 0; i < item.Clusters.Rows.Count; i++)
 								{
-									item.Graphs[j].ClusterPairsX.Add(new List<double>());
-									item.Graphs[j].ClusterPairsY.Add(new List<double>());
-									item.Graphs[j].ClusterColors.Add(Color.FromArgb(r.Next(256), r.Next(256), r.Next(256)));
+									Color col = Color.FromArgb(r.Next(256), r.Next(256), r.Next(256));
+									graph.ClusterPairsX.Add(new List<double>());
+									graph.ClusterPairsY.Add(new List<double>());
+									graph.ClusterColors.Add(col);
 									foreach (DataUnit dataUnit in item.Clusters.Rows[i].ClusterData)
 									{
-										item.Graphs[j].ClusterPairsX[i].Add(dataUnit.Columns[pairs[j].Item1].NumericValue);
-										item.Graphs[j].ClusterPairsY[i].Add(dataUnit.Columns[pairs[j].Item2].NumericValue);
+										graph.ClusterPairsX[i].Add(result.OriginalValues[dataUnit].Columns[pairs[j].Item1].NumericValue);
+										graph.ClusterPairsY[i].Add(result.OriginalValues[dataUnit].Columns[pairs[j].Item2].NumericValue);
+									}
+
+									graphOrig.ClusterPairsX.Add(new List<double>());
+									graphOrig.ClusterPairsY.Add(new List<double>());
+									graphOrig.ClusterColors.Add(col);
+
+									foreach (DataUnit dataUnit in item.ClustersAll.Rows[i].ClusterData)
+									{
+										graphOrig.ClusterPairsX[i].Add(result.OriginalValues[dataUnit].Columns[pairs[j].Item1].NumericValue);
+										graphOrig.ClusterPairsY[i].Add(result.OriginalValues[dataUnit].Columns[pairs[j].Item2].NumericValue);
 									}
 								}
+								item.Graphs.Add(graph);
+								item.GraphsAll.Add(graphOrig);
 							}
 						}
 					}
@@ -207,6 +236,12 @@ namespace ReliefWeb.Controllers
 			}
 
 			return res.ToList();
+		}
+
+		public ActionResult Chart(GraphModel model)
+		{
+			var a = RouteData.Values;
+			return View(model);
 		}
 	}
 }

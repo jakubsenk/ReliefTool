@@ -1,0 +1,50 @@
+﻿@model List<double>
+
+@{
+	string id = ViewData["id"] as string;
+	List<int> labels = new List<int>();
+	for (int i = 0; i < Model.Count; i++)
+	{
+		labels.Add(i + 1);
+	}
+}
+<canvas id="@id" style="width: 200px; height: 200px"></canvas>
+
+<script>
+	window.addEventListener("load", function () {
+		const ctx = document.getElementById('@id');
+		const myChart = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: [
+						@for (int i = 0; i < labels.Count; i++)
+						{
+							@Html.Raw("'")
+							@(labels[i])
+							@Html.Raw("'")
+							@(i == Model.Count - 1 ? "\n" : ",\n")
+						}
+				],
+				datasets: [
+					{
+						data: [
+							@for (int i = 0; i < Model.Count; i++)
+							{
+								@(Model[i].ToString(System.Globalization.CultureInfo.InvariantCulture) + (i == Model.Count - 1 ? "\n" : ",\n"))
+							}
+						],
+						backgroundColor: ['rgb(100, 100, 255)']
+						}
+				]
+			},
+			options: {
+				plugins: {
+					legend: {
+						display: false
+					}
+				}
+			}
+		});
+	});
+</script>
+

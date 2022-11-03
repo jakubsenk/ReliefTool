@@ -15,5 +15,16 @@ namespace ReliefLib
 		{
 			ResultClass = resultClass;
 		}
+
+		internal static DataUnit Clone(DataUnit other)
+		{
+			DataUnit cloned = new DataUnit();
+			cloned.ResultClass = other.ResultClass;
+			foreach (ColumnValue item in other.Columns)
+			{
+				cloned.Columns.Add(ColumnValue.Clone(item));
+			}
+			return cloned;
+		}
 	}
 }

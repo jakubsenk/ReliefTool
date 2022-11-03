@@ -40,7 +40,7 @@
 				<th>Column</th>
 				@for (int i = 0; i < Model.Count; i++)
 				{
-					<th>@Model[i].Name</th>
+					<th colspan="2">@Model[i].Name</th>
 				}
 			</tr>
 		</thead>
@@ -53,11 +53,11 @@
 					{
 						if (Model[j].BestScore.Key == Model[j].Scores[i].Key)
 						{
-							<td><b>@Model[j].Scores[i].Value.ToString("N5")</b></td>
+							<td colspan="2"><b>@Model[j].Scores[i].Value.ToString("N5")</b></td>
 						}
 						else
 						{
-							<td>@Model[j].Scores[i].Value.ToString("N5")</td>
+							<td colspan="2">@Model[j].Scores[i].Value.ToString("N5")</td>
 						}
 					}
 				</tr>
@@ -76,21 +76,13 @@
 					<td></td>
 					@for (int i = 0; i < Model.Count; i++)
 					{
-						var xAxis = new List<int>();
-						for (int j = 0; j < Model[i].Clusters.Rows.Count; j++)
-						{
-							xAxis.Add(j + 1);
-						}
-						var chart = new Chart(width: 200, height: 200, theme: ChartTheme.Vanilla)
-					 .AddTitle("Sillhoutte index")
-					 .AddSeries("Default",
-								xValue: xAxis,
-								yValues: Model[i].Sillhoutte)
-						.ToWebImage();
 						<td>
-							<img src="@string.Format("data:image/jpeg;base64,{0}",Convert.ToBase64String(chart.GetBytes()))" />
+							@Html.Partial("BarChart", Model[i].Sillhoutte, new ViewDataDictionary() { { "id", "chart_sil_" + i } })
 						</td>
 
+						<td>
+							@Html.Partial("BarChart", Model[i].SillhoutteAll, new ViewDataDictionary() { { "id", "chart_sil_all_" + i } })
+						</td>
 					}
 				</tr>
 				for (int j = 0; j < Model[0].Graphs.Count; j++)
@@ -101,7 +93,10 @@
 						@for (int i = 0; i < Model.Count; i++)
 						{
 							<td>
-								@Html.Partial("Chart", Model[i].Graphs[j], new ViewDataDictionary() { { "Counter", i }, { "Counter2", j } })
+								@Html.Partial("Chart", Model[i].Graphs[j], new ViewDataDictionary() { { "id", "chart_" + i + "_" + j } })
+							</td>
+							<td>
+								@Html.Partial("Chart", Model[i].GraphsAll[j], new ViewDataDictionary() { { "id", "chart_" + i + "_" + j + "_o" } })
 							</td>
 						}
 					</tr>

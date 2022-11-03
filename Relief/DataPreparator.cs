@@ -94,8 +94,15 @@ namespace ReliefLib
 
 			columnCount = result[0].Columns.Count;
 
+			Dictionary<DataUnit, DataUnit> original = new Dictionary<DataUnit, DataUnit>();
+
 			if (options.Normalize)
 			{
+				for (int i = 0; i < result.Count; i++)
+				{
+					DataUnit unit = DataUnit.Clone(result[i]);
+					original.Add(result[i], unit);
+				}
 				for (int i = 0; i < columnCount; i++)
 				{
 					if (result[0].Columns[i].IsString) continue;
@@ -120,7 +127,7 @@ namespace ReliefLib
 				}
 			}
 
-			PreparatorResult presult = new PreparatorResult(result, keys);
+			PreparatorResult presult = new PreparatorResult(result, keys, original);
 			return presult;
 		}
 

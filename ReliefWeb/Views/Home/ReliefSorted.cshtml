@@ -61,28 +61,22 @@
 				@if (item.Clusters != null)
 				{
 					<tr>
-						@{
-							var xAxis = new List<int>();
-							for (int j = 0; j < item.Clusters.Rows.Count; j++)
-							{
-								xAxis.Add(j + 1);
-							}
-							var chart = new Chart(width: 200, height: 200, theme: ChartTheme.Vanilla)
-						 .AddTitle("Sillhoutte index")
-						 .AddSeries("Default",
-									xValue: xAxis,
-									yValues: item.Sillhoutte)
-							.ToWebImage();
-							<td colspan="2">
-								<img src="@string.Format("data:image/jpeg;base64,{0}",Convert.ToBase64String(chart.GetBytes()))" />
-							</td>
-						}
+						<td>
+							@Html.Partial("BarChart", item.Sillhoutte, new ViewDataDictionary() { { "id", "chart_sil_" + ind } })
+						</td>
+
+						<td>
+							@Html.Partial("BarChart", item.SillhoutteAll, new ViewDataDictionary() { { "id", "chart_sil_all_" + ind } })
+						</td>
 					</tr>
 					for (int j = 0; j < item.Graphs.Count; j++)
 					{
 						<tr>
-							<td colspan="2">
-								@Html.Partial("Chart", item.Graphs[j], new ViewDataDictionary() { { "Counter", ind }, { "Counter2", j } })
+							<td>
+								@Html.Partial("Chart", item.Graphs[j], new ViewDataDictionary() { { "id", "chart_" + ind + "_" + j } })
+							</td>
+							<td>
+								@Html.Partial("Chart", item.GraphsAll[j], new ViewDataDictionary() { { "id", "chart_" + ind + "_" + j + "_o" } })
 							</td>
 						</tr>
 					}

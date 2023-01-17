@@ -126,6 +126,13 @@ namespace ReliefLib
 					}
 				}
 			}
+			else
+			{
+				for (int i = 0; i < result.Count; i++)
+				{
+					original.Add(result[i], result[i]);
+				}
+			}
 
 			PreparatorResult presult = new PreparatorResult(result, keys, original);
 			return presult;

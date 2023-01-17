@@ -76,12 +76,18 @@
 					<td></td>
 					@for (int i = 0; i < Model.Count; i++)
 					{
-						<td>
-							@Html.Partial("BarChart", Model[i].Sillhoutte, new ViewDataDictionary() { { "id", "chart_sil_" + i } })
+						<td style="width: 200px">
+							@for (int j = 0; j < Model[i].Sillhoutte.ClusterPairs.Count; j++)
+							{
+								@Html.Partial("BarChart", Model[i].Sillhoutte.ClusterPairs[j], new ViewDataDictionary() { { "id", "chart_sil_" + i + "_" + j }, { "color", Model[i].Sillhoutte.ClusterColors[j] } })
+							}
 						</td>
 
-						<td>
-							@Html.Partial("BarChart", Model[i].SillhoutteAll, new ViewDataDictionary() { { "id", "chart_sil_all_" + i } })
+						<td style="width: 200px">
+							@for (int j = 0; j < Model[i].SillhoutteAll.ClusterPairs.Count; j++)
+							{
+								@Html.Partial("BarChart", Model[i].SillhoutteAll.ClusterPairs[j], new ViewDataDictionary() { { "id", "chart_sil_all_" + i + "_" + j }, { "color", Model[i].SillhoutteAll.ClusterColors[j] } })
+							}
 						</td>
 					}
 				</tr>

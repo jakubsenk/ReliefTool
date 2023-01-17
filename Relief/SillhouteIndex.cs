@@ -1,7 +1,4 @@
-﻿using Aglomera.Evaluation.Internal;
-using Aglomera;
-using ReliefLib.Aglomera;
-using ReliefLib.MyClusterer;
+﻿using ReliefLib.MyClusterer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,24 +10,29 @@ namespace ReliefLib
 	// https://stackoverflow.com/questions/23387275/how-do-you-manually-compute-for-silhouette-cohesion-and-separation-of-cluster
 	public static class SillhouteIndex
 	{
-		public static List<double> GetIndex(ClusterTable clusters)
+		public static List<List<double>> GetIndex(ClusterTable clusters)
 		{
-			List<double> result = new List<double>();
+			List<List<double>> result = new List<List<double>>();
 			foreach (ClusterItem item in clusters.Rows)
 			{
-				DataUnit clusterItem = item.ClusterData.First();
-				double average = item.ClusterData.Average(x => GetDistance(clusterItem, x));
-				double minBetween = double.MaxValue;
-				foreach (ClusterItem otherCluster in clusters.Rows)
+				List<double> current = new List<double>();
+				for (int i = 0; i < item.ClusterData.Count; i++)
 				{
-					if (item != otherCluster)
+					DataUnit clusterItem = item.ClusterData[i];
+					double average = item.ClusterData.Average(x => GetDistance(clusterItem, x));
+					double minBetween = double.MaxValue;
+					foreach (ClusterItem otherCluster in clusters.Rows)
 					{
-						double averageBetween = otherCluster.ClusterData.Average(x => GetDistance(clusterItem, x));
-						if (averageBetween < minBetween) minBetween = averageBetween;
+						if (item != otherCluster)
+						{
+							double averageBetween = otherCluster.ClusterData.Average(x => GetDistance(clusterItem, x));
+							if (averageBetween < minBetween) minBetween = averageBetween;
+						}
 					}
-				}
 
-				result.Add(1 - (average / minBetween));
+					current.Add(1 - (average / minBetween));
+				}
+				result.Add(current.OrderByDescending(x => x).ToList());
 			}
 
 			return result;

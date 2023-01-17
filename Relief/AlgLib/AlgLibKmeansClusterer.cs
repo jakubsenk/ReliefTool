@@ -1,24 +1,20 @@
-﻿using Aglomera.Linkage;
-using Aglomera;
-using ReliefLib.Aglomera;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ReliefLib.MyClusterer;
 
-namespace ReliefLib
+namespace ReliefLib.AlgLib
 {
-	public class AlgLibClusterer : IClusterer
+	public class AlgLibKmeansClusterer : IClusterer
 	{
 		public ClusterTable GetClusters(List<DataUnit> data, int clusterCount, List<int> clusterProperties)
 		{
 			alglib.clusterizerstate s;
-			alglib.ahcreport rep;
+			alglib.kmeansreport rep;
 			double[,] xy = new double[data.Count, clusterProperties.Count];
 			int[] cidx;
-			int[] cz;
 
 			for (int j = 0; j < data.Count; j++)
 			{
@@ -31,10 +27,14 @@ namespace ReliefLib
 
 			alglib.clusterizercreate(out s);
 			alglib.clusterizersetpoints(s, xy, 2);
-			alglib.clusterizerrunahc(s, out rep);
+			alglib.clusterizerrunkmeans(s, clusterCount, out rep);
 
-			// with K=3 we have three clusters C0=[P3], C1=[P2,P4], C2=[P0,P1]
-			alglib.clusterizergetkclusters(rep, clusterCount, out cidx, out cz);
+			if (rep.terminationtype != 1)
+			{
+				throw new ApplicationException("Clustering failed, result code: " + rep.terminationtype);
+			}
+
+			cidx = rep.cidx;
 
 			ClusterTable result = new ClusterTable();
 			for (int i = 0; i < clusterCount; i++)
@@ -43,6 +43,7 @@ namespace ReliefLib
 				row.ClusterData = new List<DataUnit>();
 				result.Rows.Add(row);
 			}
+
 
 			for (int i = 0; i < cidx.Length; i++)
 			{

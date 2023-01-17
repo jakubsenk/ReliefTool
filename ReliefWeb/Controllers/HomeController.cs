@@ -1,4 +1,6 @@
 ﻿using ReliefLib;
+using ReliefLib.AlgLib;
+using ReliefLib.MyClusterer;
 using ReliefWeb.Models;
 using System;
 using System.Collections.Generic;
@@ -33,6 +35,7 @@ namespace ReliefWeb.Controllers
 			string sk = Request.Form.Get("k");
 			string sort = Request.Form.Get("sort");
 			string cluster = Request.Form.Get("cluster");
+			string clusterType = Request.Form.Get("cluster-type");
 			string clusterCount = Request.Form.Get("clusterCount");
 			string clusterProperties = Request.Form.Get("clusterProps");
 
@@ -116,7 +119,7 @@ namespace ReliefWeb.Controllers
 							{
 								clusterProps.Add(result.Keys.IndexOf(cl.Key));
 							}
-							IClusterer c = new AlgLibClusterer();
+							IClusterer c = GetClusterer(clusterType);
 							item.Clusters = c.GetClusters(data, int.Parse(clusterCount), clusterProps);
 
 							clusterProps.Clear();
@@ -127,8 +130,29 @@ namespace ReliefWeb.Controllers
 
 							item.ClustersAll = c.GetClusters(data, int.Parse(clusterCount), clusterProps);
 
-							item.Sillhoutte = SillhouteIndex.GetIndex(item.Clusters);
-							item.SillhoutteAll = SillhouteIndex.GetIndex(item.ClustersAll);
+							List<Color> colors = new List<Color>();
+							for (int i = 0; i < int.Parse(clusterCount); i++)
+							{
+								colors.Add(Color.FromArgb(r.Next(256), r.Next(256), r.Next(256)));
+							}
+
+							List<List<double>> sillhoute = SillhouteIndex.GetIndex(item.Clusters);
+							SillhouteModel model = new SillhouteModel();
+							for (int i = 0; i < sillhoute.Count; i++)
+							{
+								model.ClusterPairs.Add(sillhoute[i]);
+								model.ClusterColors.Add(colors[i]);
+							}
+							item.Sillhoutte = model;
+
+							sillhoute = SillhouteIndex.GetIndex(item.ClustersAll);
+							model = new SillhouteModel();
+							for (int i = 0; i < sillhoute.Count; i++)
+							{
+								model.ClusterPairs.Add(sillhoute[i]);
+								model.ClusterColors.Add(colors[i]);
+							}
+							item.SillhoutteAll = model;
 
 							List<Tuple<int, int>> pairs = GetClusterPropertiesPairs(result, item, int.Parse(clusterProperties));
 							for (int j = 0; j < pairs.Count; j++)
@@ -144,7 +168,7 @@ namespace ReliefWeb.Controllers
 
 								for (int i = 0; i < item.Clusters.Rows.Count; i++)
 								{
-									Color col = Color.FromArgb(r.Next(256), r.Next(256), r.Next(256));
+									Color col = colors[i];
 									graph.ClusterPairsX.Add(new List<double>());
 									graph.ClusterPairsY.Add(new List<double>());
 									graph.ClusterColors.Add(col);
@@ -236,6 +260,17 @@ namespace ReliefWeb.Controllers
 			}
 
 			return res.ToList();
+		}
+
+		private IClusterer GetClusterer(string clusterType)
+		{
+			switch (clusterType)
+			{
+				case "AlgLib.Ahc": return new AlgLibAhcClusterer();
+				case "AlgLib.Kmeans": return new AlgLibKmeansClusterer();
+				case "Internal": return new InternalClusterer();
+				default: throw new ArgumentOutOfRangeException(nameof(clusterType), clusterType, "Invalid cluster type.");
+			}
 		}
 
 		public ActionResult Chart(GraphModel model)

@@ -1,7 +1,4 @@
-﻿using Aglomera.Linkage;
-using Aglomera;
-using ReliefLib.Aglomera;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

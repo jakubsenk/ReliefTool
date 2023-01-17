@@ -17,8 +17,8 @@ namespace ReliefWeb.Models
 		public string Name { get; set; }
 		public ClusterTable Clusters { get; set; }
 		public ClusterTable ClustersAll { get; set; }
-		public List<double> Sillhoutte { get; set; }
-		public List<double> SillhoutteAll { get; set; }
+		public SillhouteModel Sillhoutte { get; set; }
+		public SillhouteModel SillhoutteAll { get; set; }
 		public List<GraphModel> Graphs { get; set; }
 		public List<GraphModel> GraphsAll { get; set; }
 	}

@@ -43,6 +43,13 @@
 	<input id="cluster" name="cluster" type="checkbox" checked />
 	<label for="cluster">Apply clustering on result</label>
 	<br />
+	<label for="cluster-type">Clusterer:</label>
+	<select id="cluster-type" name="cluster-type">
+		<option value="AlgLib.Kmeans">AlgLib Kmeans</option>
+		<option value="AlgLib.Ahc">AlgLib Agglomerative</option>
+		<option value="Internal">Internal Agglomerative (Very slow)</option>
+	</select>
+	<br />
 	<label for="clusterCount">Number of clusters</label>
 	<input id="clusterCount" name="clusterCount" type="number" value="3" />
 	<br />

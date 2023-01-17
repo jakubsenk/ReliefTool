@@ -1,0 +1,56 @@
+﻿@using ReliefWeb.Models
+@model SillhouteModel
+
+@{
+	string id = ViewData["id"] as string;
+	List<int> labels = new List<int>();
+	for (int i = 0; i < Model.ClusterPairs.Count; i++)
+	{
+		labels.Add(i + 1);
+	}
+
+	int height = 200 + Model.ClusterPairs.Count;
+}
+<canvas id="@id" style="width: 200px; height: @Html.Raw(height + "px")"></canvas>
+
+<script>
+	window.addEventListener("load", function () {
+			const ctx = document.getElementById('@id');
+			const myChart = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: [
+						@for (int i = 0; i < labels.Count; i++)
+						{
+							@Html.Raw("'" + labels[i] + "'")
+							@(i == labels.Count - 1 ? "\n" : ",\n")
+						}
+				],
+				datasets: [
+						@for (int i = 0; i < Model.ClusterPairs.Count; i++)
+						{
+							@Html.Raw("{");
+							@Html.Raw("label: \"My First dataset\",")
+							@Html.Raw("data: [");
+							for (int j = 0; j < Model.ClusterPairs[i].Count; j++)
+							{
+								@(Model.ClusterPairs[i][j].ToString(System.Globalization.CultureInfo.InvariantCulture) + (j == Model.ClusterPairs[i].Count - 1 ? "\n" : ",\n"))
+							}
+							@Html.Raw("],");
+							@Html.Raw("backgroundColor: ['rgb(100, 100, 255)']");
+							@Html.Raw(i == Model.ClusterPairs.Count - 1 ? "}" : "},");
+						}
+				]
+			},
+			options: {
+				indexAxis: 'y',
+				plugins: {
+					legend: {
+						display: false
+					}
+				}
+			}
+		});
+	});
+</script>
+

@@ -7,3 +7,11 @@ https://www.kaggle.com/datasets/paradisejoy/top-hits-spotify-from-20002019
 https://www.kaggle.com/datasets/zzettrkalpakbal/full-filled-brain-stroke-dataset
 https://www.kaggle.com/datasets/gabrielsantello/cars-purchase-decision-dataset
 https://www.kaggle.com/datasets/iabhishekofficial/mobile-price-classification
+https://www.kaggle.com/datasets/sudhanshu2198/oil-spill-detection
+https://www.kaggle.com/datasets/ahsan81/hotel-reservations-classification-dataset
+https://www.kaggle.com/datasets/ahsan81/job-placement-dataset
+https://www.kaggle.com/datasets/ahsan81/superstore-marketing-campaign-dataset
+https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-prediction-dataset
+https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction
+https://www.kaggle.com/datasets/tusharaggarwal27/audit-risk-data
+https://www.kaggle.com/datasets/hemanthsai7/loandefault

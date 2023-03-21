@@ -26,21 +26,21 @@ namespace DataGenerator
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < attributes; i++)
 			{
-				sb.Append("A").Append(i).Append(",");
+				sb.Append('A').Append(i).Append(',');
 			}
 			sb.AppendLine("Result");
 			for (int i = 0; i < instances; i++)
 			{
 				for (int j = 0; j < attributes; j++)
 				{
-					sb.Append(Random.Shared.Next(0, 20000)).Append(",");
+					sb.Append(Random.Shared.Next(0, 20000)).Append(',');
 				}
 				sb.AppendLine(classes[Random.Shared.Next(0, classesCount)].ToString());
 			}
 
 			string name = $"data_{instances}_{attributes}_{classesCount}.csv";
 			File.WriteAllText(name, sb.ToString());
-			Process.Start("explorer", "/select," + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + name);
+			Process.Start("explorer", $@"/select,{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\{name}");
 		}
 	}
 }

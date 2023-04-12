@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TextMapper": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\MATD\\mail_data.csv"
+    }
+  }
+}

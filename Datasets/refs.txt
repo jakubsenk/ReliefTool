@@ -15,3 +15,4 @@ https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-predict
 https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction
 https://www.kaggle.com/datasets/tusharaggarwal27/audit-risk-data
 https://www.kaggle.com/datasets/hemanthsai7/loandefault
+https://www.kaggle.com/datasets/somesh24/spambase

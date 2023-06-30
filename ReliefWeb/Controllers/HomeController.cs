@@ -1,23 +1,24 @@
-﻿using ReliefLib;
+﻿using PdfSharp.Pdf;
+using ReliefLib;
 using ReliefLib.AlgLib;
-using ReliefLib.MyClusterer;
 using ReliefWeb.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Helpers;
 using System.Web.Mvc;
+using PdfSharp.Drawing;
+using PdfSharp.Drawing.Layout;
 
 namespace ReliefWeb.Controllers
 {
 	public class HomeController : Controller
 	{
+		private static List<ReliefResult> exportData = null;
+
 		public ActionResult Index()
 		{
 			return View();
@@ -195,6 +196,7 @@ namespace ReliefWeb.Controllers
 					}
 
 					data.Clear();
+					exportData = results;
 					if (sort != null)
 						return View("ReliefSorted", results);
 					else
@@ -277,6 +279,192 @@ namespace ReliefWeb.Controllers
 		{
 			var a = RouteData.Values;
 			return View(model);
+		}
+
+		[HttpGet]
+		public ActionResult Export()
+		{
+			PdfDocument pdf = new PdfDocument();
+			PdfPage page = pdf.AddPage();
+			XGraphics gfx = XGraphics.FromPdfPage(page);
+			XFont font = new XFont("Verdana", 20, XFontStyle.Bold);
+
+			XSolidBrush rect_style1 = new XSolidBrush(XColors.LightGray);
+			XSolidBrush rect_style2 = new XSolidBrush(XColors.DarkGreen);
+
+			int marginLeft = 20;
+			int marginTop = 40;
+			int el_height = 30;
+			int rect_height = 17;
+
+			int el1_width = 80;
+			int el2_width = 380;
+			int offSetX_1 = el1_width;
+			int interLine_X_1 = 2;
+
+			XStringFormat format = new XStringFormat();
+			format.LineAlignment = XLineAlignment.Near;
+			format.Alignment = XStringAlignment.Near;
+
+			gfx.DrawRectangle(rect_style2, marginLeft, marginTop, el1_width * 2 + interLine_X_1, rect_height);
+
+			var tf = new XTextFormatter(gfx);
+			XFont fontParagraph = new XFont("Verdana", 8, XFontStyle.Regular);
+			tf.DrawString("Algorithm", fontParagraph, XBrushes.White,
+										new XRect(marginLeft, marginTop, el1_width, el_height), format);
+
+			tf.DrawString("Best column", fontParagraph, XBrushes.White,
+										new XRect(marginLeft + offSetX_1 + interLine_X_1, marginTop, el2_width, el_height), format);
+
+			double lineHeight = 20;
+
+			for (int p = 0; p < exportData.Count; p++)
+			{
+				double dist_Y = lineHeight * (p + 1);
+				double dist_Y2 = dist_Y - 2;
+
+				gfx.DrawRectangle(rect_style1, marginLeft, marginTop + dist_Y2, el1_width, rect_height);
+				tf.DrawString(
+						exportData[p].Name,
+						fontParagraph,
+						XBrushes.Black,
+						new XRect(marginLeft, marginTop + dist_Y, el1_width, el_height),
+						format);
+
+				gfx.DrawRectangle(rect_style1, marginLeft + offSetX_1, marginTop + dist_Y2, el1_width, rect_height);
+				tf.DrawString(
+						exportData[p].BestScore.Key,
+						fontParagraph,
+						XBrushes.Black,
+						new XRect(marginLeft + offSetX_1, marginTop + dist_Y, el1_width, el_height),
+						format);
+			}
+			for (int p = 0; p < exportData.Count; p++)
+			{
+				// Page Options
+				PdfPage pdfPage = pdf.AddPage();
+				pdfPage.Height = 842;//842
+				pdfPage.Width = 590;
+
+				// Get an XGraphics object for drawing
+				XGraphics graph = XGraphics.FromPdfPage(pdfPage);
+
+				// Text format
+				tf = new XTextFormatter(graph);
+
+
+				// Row elements
+
+				// page structure options
+
+
+				int interLine_X_2 = 2 * interLine_X_1;
+
+				int offSetX_2 = el1_width + el2_width;
+
+
+				graph.DrawString(exportData[p].Name, font, XBrushes.Black, new XRect(10, 10, page.Width, page.Height), XStringFormats.TopLeft);
+
+				for (int i = 0, c = 0; i < exportData[p].SortedScores.Take(1000).Count(); i++, c++)
+				{
+					double dist_Y = lineHeight * (c + 1);
+					double dist_Y2 = dist_Y - 2;
+
+					if (dist_Y > pdfPage.Height - 80)
+					{
+						pdfPage = pdf.AddPage();
+						pdfPage.Height = 842;
+						pdfPage.Width = 590;
+						graph = XGraphics.FromPdfPage(pdfPage);
+
+						// Text format
+						tf = new XTextFormatter(graph);
+						c = 0;
+						dist_Y = lineHeight * (c + 1);
+						dist_Y2 = dist_Y - 2;
+					}
+					// header della G
+					if (i == 0)
+					{
+						graph.DrawRectangle(rect_style2, marginLeft, marginTop, el1_width + el2_width + interLine_X_1, rect_height);
+
+						tf.DrawString("Attribute", fontParagraph, XBrushes.White,
+													new XRect(marginLeft, marginTop, el1_width, el_height), format);
+
+						tf.DrawString("Score", fontParagraph, XBrushes.White,
+													new XRect(marginLeft + offSetX_1 + interLine_X_1, marginTop, el2_width, el_height), format);
+
+						//tf.DrawString("column3", fontParagraph, XBrushes.White,
+						//new XRect(marginLeft + offSetX_2 + 2 * interLine_X_2, marginTop, el1_width, el_height), format);
+
+						// stampo il primo elemento insieme all'header
+						//graph.DrawRectangle(rect_style1, marginLeft, dist_Y2 + marginTop, el1_width, rect_height);
+						//tf.DrawString("text1", fontParagraph, XBrushes.Black,
+						//							new XRect(marginLeft, dist_Y + marginTop, el1_width, el_height), format);
+
+						////ELEMENT 2 - BIG 380
+						//graph.DrawRectangle(rect_style1, marginLeft + offSetX_1 + interLine_X_1, dist_Y2 + marginTop, el2_width, rect_height);
+						//tf.DrawString(
+						//		"text2",
+						//		fontParagraph,
+						//		XBrushes.Black,
+						//		new XRect(marginLeft + offSetX_1 + interLine_X_1, dist_Y + marginTop, el2_width, el_height),
+						//		format);
+
+
+						////ELEMENT 3 - SMALL 80
+
+						//graph.DrawRectangle(rect_style1, marginLeft + offSetX_2 + interLine_X_2, dist_Y2 + marginTop, el1_width, rect_height);
+						//tf.DrawString(
+						//		"text3",
+						//		fontParagraph,
+						//		XBrushes.Black,
+						//		new XRect(marginLeft + offSetX_2 + 2 * interLine_X_2, dist_Y + marginTop, el1_width, el_height),
+						//		format);
+					}
+
+					//if (i % 2 == 1)
+					//{
+					//  graph.DrawRectangle(TextBackgroundBrush, marginLeft, lineY - 2 + marginTop, pdfPage.Width - marginLeft - marginRight, lineHeight - 2);
+					//}
+
+					//ELEMENT 1 - SMALL 80
+					graph.DrawRectangle(rect_style1, marginLeft, marginTop + dist_Y2, el1_width, rect_height);
+					tf.DrawString(
+
+							exportData[p].SortedScores[i].Key,
+							fontParagraph,
+							XBrushes.Black,
+							new XRect(marginLeft, marginTop + dist_Y, el1_width, el_height),
+							format);
+
+					//ELEMENT 2 - BIG 380
+					graph.DrawRectangle(rect_style1, marginLeft + offSetX_1 + interLine_X_1, dist_Y2 + marginTop, el2_width, rect_height);
+					tf.DrawString(
+							exportData[p].SortedScores[i].Value.ToString("N5"),
+							fontParagraph,
+							XBrushes.Black,
+							new XRect(marginLeft + offSetX_1 + interLine_X_1, marginTop + dist_Y, el2_width, el_height),
+							format);
+
+
+					//ELEMENT 3 - SMALL 80
+
+					//graph.DrawRectangle(rect_style1, marginLeft + offSetX_2 + interLine_X_2, dist_Y2 + marginTop, el1_width, rect_height);
+					//tf.DrawString(
+					//		"text3",
+					//		fontParagraph,
+					//		XBrushes.Black,
+					//		new XRect(marginLeft + offSetX_2 + 2 * interLine_X_2, marginTop + dist_Y, el1_width, el_height),
+					//		format);
+				}
+			}
+
+			using (MemoryStream ms = new MemoryStream())
+			{
+				pdf.Save(ms);
+				return File(ms.ToArray(), "application/pdf", "export.pdf");
+			}
 		}
 	}
 }

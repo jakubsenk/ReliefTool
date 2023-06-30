@@ -30,7 +30,7 @@
 			<thead>
 				<tr>
 					<th>Column</th>
-					<th>Score</th>
+					<th style="text-align: center">Score</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -40,7 +40,7 @@
 					{
 						<tr>
 							<td>@item.SortedScores[i].Key</td>
-							<td><b>@item.SortedScores[i].Value.ToString("N5")</b></td>
+							<td style="text-align: center"><b>@item.SortedScores[i].Value.ToString("N5")</b></td>
 						</tr>
 					}
 					else
@@ -48,7 +48,7 @@
 
 						<tr>
 							<td>@item.SortedScores[i].Key</td>
-							<td>@item.SortedScores[i].Value.ToString("N5")</td>
+							<td style="text-align: center">@item.SortedScores[i].Value.ToString("N5")</td>
 						</tr>
 					}
 				}
@@ -90,4 +90,7 @@
 			</tbody>
 		</table>
 	}
+	<br />
+	<br />
+	<button onclick="location.href = '/Home/Export'">Get PDF</button>
 }

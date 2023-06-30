@@ -4,6 +4,21 @@
 
 <br />
 
+<style>
+	legend {
+		padding: 0 10px;
+		border: none;
+		width: initial;
+		margin: 0;
+	}
+
+	fieldset {
+		border: 1px solid black;
+		padding: 15px;
+		margin: 10px -15px;
+	}
+</style>
+
 @if (Model != null)
 {
 	<span style="color: red">@Model</span>
@@ -11,50 +26,61 @@
 
 @using (Html.BeginForm("Relief", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
-	<label for="file">Data file</label>
-	<input id="file" name="file" type="file" />
-	<br />
-	<input id="skip" name="skip" type="checkbox" checked />
-	<label for="skip">First line is column definitions</label>
-	<br />
-	<span>Result class is:</span>
-	<br />
-	<input type="radio" id="first-col" name="resultclass" value="0">
-	<label for="first-col">First column</label>
-	<br>
-	<input type="radio" id="last-col" name="resultclass" value="1" checked>
-	<label for="last-col">Last column</label>
-	<br>
-	<label for="separator">Column separator: </label>
-	<input type="text" id="separator" name="separator" value=",">
-	<br />
-	<input id="normalize" name="normalize" type="checkbox" checked />
-	<label for="normalize">Normalize values</label>
-	<br />
-	<label for="k">K (for ReliefF)</label>
-	<input id="k" name="k" type="number" value="10" />
-	<br />
-	<input id="parallel" name="parallel" type="checkbox" checked />
-	<label for="parallel">Use parallelism</label>
-	<br />
-	<input id="sort" name="sort" type="checkbox" />
-	<label for="sort">Sort by best columns</label>
-	<br />
-	<input id="cluster" name="cluster" type="checkbox" checked />
-	<label for="cluster">Apply clustering on result</label>
-	<br />
-	<label for="cluster-type">Clusterer:</label>
-	<select id="cluster-type" name="cluster-type">
-		<option value="AlgLib.Kmeans">AlgLib Kmeans</option>
-		<option value="AlgLib.Ahc">AlgLib Agglomerative</option>
-		<option value="Internal">Internal Agglomerative (Very slow)</option>
-	</select>
-	<br />
-	<label for="clusterCount">Number of clusters</label>
-	<input id="clusterCount" name="clusterCount" type="number" value="3" />
-	<br />
-	<label for="clusterProps">Cluster by top properties</label>
-	<input id="clusterProps" name="clusterProps" type="number" value="3" />
-	<br />
-	<input type="submit" />
+	<fieldset>
+		<legend>Dataset</legend>
+		<label for="file">Data file</label>
+		<input id="file" name="file" type="file" />
+	</fieldset>
+	<fieldset>
+		<legend>Dataset settings</legend>
+		<input id="skip" name="skip" type="checkbox" checked />
+		<label for="skip">First line is column definitions</label>
+		<br>
+		<label for="separator">Column separator: </label>
+		<input type="text" id="separator" name="separator" value=",">
+		<br />
+		<span>Result class is:</span>
+		<br />
+		<input type="radio" id="first-col" name="resultclass" value="0">
+		<label for="first-col">First column</label>
+		<br>
+		<input type="radio" id="last-col" name="resultclass" value="1" checked>
+		<label for="last-col">Last column</label>
+	</fieldset>
+	<fieldset>
+		<legend>Relief settings</legend>
+		<input id="normalize" name="normalize" type="checkbox" checked />
+		<label for="normalize">Normalize values</label>
+		<br />
+		<input id="parallel" name="parallel" type="checkbox" checked />
+		<label for="parallel">Use parallelism</label>
+		<br />
+		<label for="k">K (for ReliefF)</label>
+		<input id="k" name="k" type="number" value="10" />
+	</fieldset>
+	<fieldset>
+		<legend>Output settings</legend>
+		<input id="sort" name="sort" type="checkbox" />
+		<label for="sort">Sort by best columns</label>
+		<br />
+		<input id="cluster" name="cluster" type="checkbox" checked />
+		<label for="cluster">Apply clustering on result</label>
+		<br />
+		<label for="cluster-type">Clusterer:</label>
+		<select id="cluster-type" name="cluster-type">
+			<option value="AlgLib.Kmeans">AlgLib Kmeans</option>
+			<option value="AlgLib.Ahc">AlgLib Agglomerative</option>
+			<option value="Internal">Internal Agglomerative (Very slow)</option>
+		</select>
+		<br />
+		<label for="clusterCount">Number of clusters</label>
+		<input id="clusterCount" name="clusterCount" type="number" value="3" />
+		<br />
+		<label for="clusterProps">Cluster by top properties</label>
+		<input id="clusterProps" name="clusterProps" type="number" value="3" />
+	</fieldset>
+	<fieldset>
+		<legend>Confirm</legend>
+		<input type="submit" />
+	</fieldset>
 }

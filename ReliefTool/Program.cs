@@ -13,12 +13,7 @@ namespace ReliefTool
 	{
 		static void Main(string[] args)
 		{
-			DataPreparatorOptions options = new DataPreparatorOptions
-			{
-				ResultClassIsFirstColumn = true
-			};
-
-			PreparatorResult result = DataPreparator.PrepareData(File.ReadAllLines(@"D:\Git\ReliefTool\Datasets\thrombin.data"), options);
+			PreparatorResult result = DataPreparator.PrepareData(File.ReadAllLines(args[0]));
 			List<DataUnit> data = result.Data;
 
 			Stopwatch sw = new Stopwatch();
